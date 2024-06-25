@@ -31,17 +31,17 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "followers_following",joinColumns = @JoinColumn(name = "follower_id"), inverseJoinColumns = @JoinColumn(name = "following_id"))
-    List<User> followers;
+    private List<User> followers;
 
     @ManyToMany(mappedBy = "followers")
-    List<User> following;
+    private List<User> following;
 
     @ManyToMany(mappedBy = "likes")
-    List<Tweet> tweetLikes;
+    private List<Tweet> tweetLikes;
 
     @ManyToMany(mappedBy = "mentions")
-    List<Tweet> tweetMentions;
+    private List<Tweet> tweetMentions;
 
     @OneToMany(mappedBy = "author")
-    List<Tweet> tweets;
+    private List<Tweet> tweets;
 }
