@@ -47,10 +47,4 @@ public class User {
     @OneToMany(mappedBy = "author")
     private List<Tweet> tweets;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id + '}';
-    }
-
 }

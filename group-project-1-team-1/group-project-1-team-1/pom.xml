@@ -14,7 +14,7 @@
 	<name>group-project-1-team-1</name>
 	<description>twitter api for cooksys team 1</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>22</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
 	</properties>
 	<dependencies>

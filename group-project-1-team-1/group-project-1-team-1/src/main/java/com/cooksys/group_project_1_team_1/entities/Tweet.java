@@ -49,12 +49,4 @@ public class Tweet {
     @JoinTable(name = "user_mentions",joinColumns = @JoinColumn(name = "tweet_id"),inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> mentions=new ArrayList<>();
 
-    @Override
-    public String toString() {
-        return "Tweet{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                '}';
-    }
-
 }
