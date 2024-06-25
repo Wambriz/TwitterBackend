@@ -42,11 +42,19 @@ public class Tweet {
     @JoinTable(name = "tweet_hashtags",joinColumns = @JoinColumn(name = "tweet_id"),inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
     private List<Hashtag> hashtags=new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(name = "user_likes",joinColumns = @JoinColumn(name = "tweet_id"),inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @ManyToMany(mappedBy = "tweetLikes")
     private List<User> likes=new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_mentions",joinColumns = @JoinColumn(name = "tweet_id"),inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> mentions=new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Tweet{" +
+                "id=" + id +
+                ", content='" + content + '\'' +
+                '}';
+    }
+
 }

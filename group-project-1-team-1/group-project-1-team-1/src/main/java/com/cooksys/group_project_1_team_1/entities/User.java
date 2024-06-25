@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,7 +37,8 @@ public class User {
     @ManyToMany(mappedBy = "followers")
     private List<User> following;
 
-    @ManyToMany(mappedBy = "likes")
+    @ManyToMany
+    @JoinTable(name = "user_likes", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "tweet_id"))
     private List<Tweet> tweetLikes;
 
     @ManyToMany(mappedBy = "mentions")
@@ -44,4 +46,11 @@ public class User {
 
     @OneToMany(mappedBy = "author")
     private List<Tweet> tweets;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id + '}';
+    }
+
 }
