@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Data
 public class TweetResponseDto {
 
-    private Integer id;
+    private Long id;
 
     private UserResponseDto author;
 
