@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/validate")
 public class ValidateController {
     private final ValidateService validateService;
 }
