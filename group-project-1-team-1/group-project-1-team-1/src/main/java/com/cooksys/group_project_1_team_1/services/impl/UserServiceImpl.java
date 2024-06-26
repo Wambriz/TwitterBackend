@@ -181,16 +181,14 @@ public class UserServiceImpl implements UserService {
         if (userRequestDto.getProfile().getEmail() == null) {
             throw new BadRequestException("Must provide your email to create a new user.");
         }
-        // Check if username already exists in database and not deleted
+
         User user = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
         if (user != null && !user.isDeleted()) {
             throw new BadRequestException("Username is not available.");
         }
-        // If user has previously been deleted, reactive them rather than create a new
-        // user
         if (user != null && user.isDeleted()) {
             user.setDeleted(false);
-            // Update the reativated user profile with the profile values in the request
+
             if (userRequestDto.getProfile().getEmail() != null) {
                 user.getProfile().setEmail(userRequestDto.getProfile().getEmail());
             }
@@ -206,7 +204,6 @@ public class UserServiceImpl implements UserService {
 
             return userMapper.entityToResponseDto(userRepository.saveAndFlush(user));
         }
-
         User userToSave = userMapper.requestDtoToEntity(userRequestDto);
         userToSave.setDeleted(false);
 
@@ -228,7 +225,7 @@ public class UserServiceImpl implements UserService {
         if (!currentUser.getCredentials().getPassword().equals(credentials.getPassword())) {
             throw new NotAuthorizedException("Password is incorrect.");
         }
-        // Ensures there is not already a following relationship between the 2 users
+        
         for (User u : currentUser.getFollowing()) {
             if (u.getCredentials().getUsername().equals(userToFollow.getCredentials().getUsername())) {
                 throw new BadRequestException("You already follow this user.");

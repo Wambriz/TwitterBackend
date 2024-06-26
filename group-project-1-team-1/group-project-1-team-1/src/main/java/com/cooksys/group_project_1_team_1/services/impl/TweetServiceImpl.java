@@ -48,7 +48,6 @@ public class TweetServiceImpl implements TweetService {
         if (credentials.getUsername() == null || credentials.getPassword() == null) {
             throw new NotAuthorizedException("Must provide username and password");
         }
-
         User user = userRepository.findByCredentialsUsername(credentials.getUsername());
         if (user == null) {
             throw new NotFoundException("User not found");
@@ -63,38 +62,24 @@ public class TweetServiceImpl implements TweetService {
     private List<Hashtag> getHashtagsFromString(String string, Tweet tweet) {
         Pattern pattern = Pattern.compile("#(\\w+)");
         Matcher matcher = pattern.matcher(string);
-        List<String> matches = new ArrayList<>();
         List<Hashtag> hashtags = new ArrayList<>();
+        long now = System.currentTimeMillis();
 
         while (matcher.find()) {
-            matches.add(matcher.group(1));
-        }
+            String label = matcher.group(1);
+            Hashtag hashtag = hashtagRepository.findByLabelIgnoreCase(label);
 
-        for (String match : matches) {
-            // Get hashtag from DB
-            Hashtag hashtag = hashtagRepository.findByLabelIgnoreCase(match);
-            long now = System.currentTimeMillis();
-
-            // If hashtag doesn't exist in DB, create and add
             if (hashtag == null) {
-                Hashtag hashtagToSave = new Hashtag();
-                List<Tweet> tweets = new ArrayList<>();
-                tweets.add(tweet);
-
-                hashtagToSave.setLabel(match);
-                hashtagToSave.setFirstUsed(new Timestamp(now));
-                hashtagToSave.setLastUsed(new Timestamp(now));
-                hashtagToSave.setTweets(tweets);
-
-                hashtags.add(hashtagRepository.saveAndFlush(hashtagToSave));
-            } else {
-                List<Tweet> tweets = hashtag.getTweets();
-                tweets.add(tweet);
-                hashtag.setTweets(tweets);
+                hashtag = new Hashtag();
+                hashtag.setLabel(label);
+                hashtag.setFirstUsed(new Timestamp(now));
                 hashtag.setLastUsed(new Timestamp(now));
-
-                hashtags.add(hashtagRepository.saveAndFlush(hashtag));
+                hashtag.setTweets(new ArrayList<>());
             }
+
+            hashtag.getTweets().add(tweet);
+            hashtag.setLastUsed(new Timestamp(now));
+            hashtags.add(hashtagRepository.saveAndFlush(hashtag));
         }
 
         return hashtags;
@@ -105,23 +90,15 @@ public class TweetServiceImpl implements TweetService {
     private List<User> getMentionsFromString(String string, Tweet tweet) {
         Pattern pattern = Pattern.compile("@(\\w+)");
         Matcher matcher = pattern.matcher(string);
-        List<String> matches = new ArrayList<>();
         List<User> users = new ArrayList<>();
 
         while (matcher.find()) {
-            matches.add(matcher.group(1));
-        }
-
-        for (String match : matches) {
-            User user = userRepository.findByCredentialsUsername(match);
-            if (user == null) {
-                continue;
+            String username = matcher.group(1);
+            User user = userRepository.findByCredentialsUsername(username);
+            if (user != null) {
+                user.getTweetMentions().add(tweet);
+                users.add(userRepository.saveAndFlush(user));
             }
-
-            List<Tweet> tweetsMentionedIn = user.getTweetMentions();
-            tweetsMentionedIn.add(tweet);
-            user.setTweetMentions(tweetsMentionedIn);
-            users.add(userRepository.saveAndFlush(user));
         }
 
         return users;
@@ -190,13 +167,10 @@ public class TweetServiceImpl implements TweetService {
         if (credentials == null) {
             throw new BadRequestException("Must provide credentials");
         }
-
         String content = tweetRequestDto.getContent();
-
         if (content == null || content.length() == 0) {
             throw new BadRequestException("Unable to create tweet without content");
         }
-
         User user = verifyCredentials(credentials);
 
         Tweet tweet = new Tweet();
@@ -208,6 +182,4 @@ public class TweetServiceImpl implements TweetService {
         tweet.setMentions(getMentionsFromString(content, tweet));
         return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweet));
     }
-
-
 }
