@@ -181,4 +181,21 @@ public class TweetServiceImpl implements TweetService {
         tweet.setMentions(getMentionsFromString(content, tweet));
         return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweet));
     }
+
+    @Override
+    public List<TweetResponseDto> getTweetReposts(Long id) {
+        Optional<Tweet> tweetOptional = tweetRepository.findById(id);
+        if (tweetOptional.isEmpty()) {
+            throw new NotFoundException("No tweet exists with provided ID!");
+        }
+        // Get entity
+        Tweet tweet = tweetOptional.get();
+        List<Tweet> reposts = tweet.getReposts().stream()
+                .filter(repost -> !repost.isDeleted()) // filter non deleted reposts
+                .sorted(Comparator.comparing(Tweet::getPosted).reversed())  // sorting
+                .collect(Collectors.toList());
+
+        // Convert list to Tweet entities
+        return tweetMapper.entitiesToResponseDtos(reposts);
+    }
 }
