@@ -3,7 +3,9 @@ package com.cooksys.group_project_1_team_1.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,10 @@ public class Tweet {
     @ManyToOne
     @JoinColumn(name = "user_table_id",nullable = false)
     private User author;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private Timestamp posted;
 
     @Column(nullable = false)
     private boolean deleted;

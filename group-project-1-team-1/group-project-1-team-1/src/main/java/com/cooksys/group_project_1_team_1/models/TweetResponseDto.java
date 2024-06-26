@@ -1,7 +1,5 @@
 package com.cooksys.group_project_1_team_1.models;
 
-import com.cooksys.group_project_1_team_1.entities.Tweet;
-import com.cooksys.group_project_1_team_1.entities.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
