@@ -16,6 +16,7 @@ import com.cooksys.group_project_1_team_1.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -67,5 +68,16 @@ public class UserServiceImpl implements UserService {
         }
 
         return userMapper.entityToResponseDto(user);
+    }
+
+    @Override
+    public List<TweetResponseDto> getTweetsByUsername(String username) {
+        User user = userRepository.findByCredentialsUsername(username);
+        if (user == null || user.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+        user.getTweets().sort(Comparator.comparing(Tweet::getPosted).reversed());
+
+        return tweetMapper.entitiesToResponseDtos(user.getTweets());
     }
 }
