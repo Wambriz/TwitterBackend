@@ -102,4 +102,24 @@ public class UserServiceImpl implements UserService {
 
         return tweetMapper.entitiesToResponseDtos(mentionedTweets);
     }
+
+    @Override
+    public List<UserResponseDto> getUserFollowingByUsername(String username) {
+        User user = userRepository.findByCredentialsUsername(username);
+        if (user == null || user.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+        
+        return null;
+    }
+
+    @Override
+    public List<UserResponseDto> getUserFollowsByUsername(String username) {
+        User user = userRepository.findByCredentialsUsername(username);
+        if (user == null || user.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+
+        return null;
+    }
 }
