@@ -109,8 +109,16 @@ public class UserServiceImpl implements UserService {
         if (user == null || user.isDeleted()) {
             throw new NotFoundException("User not found");
         }
-        
-        return null;
+
+        List<User> following = new ArrayList<>();
+
+        for (User u : user.getFollowing()) {
+            if (!u.isDeleted()) {
+                following.add(u);
+            }
+        }
+
+        return userMapper.entitiesToResponseDtos(following);
     }
 
     @Override
@@ -120,6 +128,14 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User not found");
         }
 
-        return null;
+        List<User> follows = new ArrayList<>();
+
+        for (User u : user.getFollowers()) {
+            if (!u.isDeleted()) {
+                follows.add(u);
+            }
+        }
+
+        return userMapper.entitiesToResponseDtos(follows);
     }
 }
