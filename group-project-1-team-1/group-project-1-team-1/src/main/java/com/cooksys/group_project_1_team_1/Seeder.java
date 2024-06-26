@@ -175,7 +175,6 @@ public class Seeder implements CommandLineRunner {
         Tweet tweet3 = new Tweet();
         tweet3.setAuthor(user2);
         tweet3.setDeleted(false);
-        // Set Content @PARAM String
         tweet3.setContent("This is some content 3 tweet3 #luigi #whereiscortana");
         tweet3.setHashtags(Arrays.asList(hashtag3, hashtag4));
         tweet3.setInReplyTo(tweet2);
@@ -185,7 +184,6 @@ public class Seeder implements CommandLineRunner {
         Tweet tweet4 = new Tweet();
         tweet4.setAuthor(user2);
         tweet4.setDeleted(false);
-        // Set Content @PARAM String
         tweet4.setContent("This is some content 4 tweet4");
         tweet4.setInReplyTo(tweet3);
         tweetRepository.saveAndFlush(tweet4);
@@ -194,7 +192,6 @@ public class Seeder implements CommandLineRunner {
         Tweet tweet5 = new Tweet();
         tweet5.setAuthor(user3);
         tweet5.setDeleted(false);
-        // Set Content @PARAM String
         tweet5.setContent("This is some content 5 tweet5");
         tweet5.setMentions(Arrays.asList(user1, user2));
         tweet5.setInReplyTo(tweet4);
@@ -204,7 +201,6 @@ public class Seeder implements CommandLineRunner {
         Tweet tweet6 = new Tweet();
         tweet6.setAuthor(user3);
         tweet6.setDeleted(false);
-        // Set Content @PARAM String
         tweet6.setRepostOf(tweet5);
         tweet6.setMentions(Arrays.asList(user1, user2));
         tweet6.setInReplyTo(tweet2);
@@ -214,7 +210,6 @@ public class Seeder implements CommandLineRunner {
         Tweet deletedTweet = new Tweet();
         deletedTweet.setAuthor(user3);
         deletedTweet.setDeleted(true);
-        // Set Content @PARAM String
         deletedTweet.setContent("This is a deleted tweet (User3) tweet7");
         deletedTweet.setMentions(Arrays.asList(user1, user2));
         tweetRepository.saveAndFlush(deletedTweet);
@@ -259,7 +254,6 @@ public class Seeder implements CommandLineRunner {
         Tweet mention1 = new Tweet();
         mention1.setAuthor(user2);
         mention1.setDeleted(false);
-        // Set Content @PARAM String
         mention1.setContent("This is some content for tweet mention 1");
         tweetRepository.saveAndFlush(mention1);
 

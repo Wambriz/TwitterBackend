@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface TweetRepository extends JpaRepository<Tweet, Long> {
-    List<Tweet> findAllByIdAndDeletedFalse(Long id);
+    List<Tweet> findAllByAuthorIdAndDeletedFalse(Long authorId);
 
     List<Tweet> findAllByDeletedFalse();
 
