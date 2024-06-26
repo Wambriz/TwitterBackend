@@ -58,4 +58,14 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.entityToResponseDto(user);
     }
+
+    @Override
+    public UserResponseDto getUserByUsername(String username) {
+        User user = userRepository.findByCredentialsUsername(username);
+        if (user == null || user.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+
+        return userMapper.entityToResponseDto(user);
+    }
 }

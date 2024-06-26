@@ -21,6 +21,11 @@ public class UserController {
         return userService.getFeedByUsername(username);
     }
 
+    @GetMapping("/@{username}")
+    public UserResponseDto getUser(@PathVariable("username") String username) {
+        return userService.getUserByUsername(username);
+    }
+
     @DeleteMapping("/@{username}")
     public UserResponseDto deleteUserByUsername(@PathVariable("username") String username, @RequestBody CredentialDto credentials) {
         return userService.deleteUserByUsername(username, credentials);
