@@ -16,6 +16,7 @@ import com.cooksys.group_project_1_team_1.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -79,5 +80,26 @@ public class UserServiceImpl implements UserService {
         user.getTweets().sort(Comparator.comparing(Tweet::getPosted).reversed());
 
         return tweetMapper.entitiesToResponseDtos(user.getTweets());
+    }
+
+    @Override
+    public List<TweetResponseDto> getUserMentionsByUsername(String username) {
+        User user = userRepository.findByCredentialsUsername(username);
+        if (user == null || user.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+
+        List<Tweet> mentionedTweets = new ArrayList<>();
+
+        for (Tweet tweet : tweetRepository.findAll()) {
+            if (tweet.getContent() != null && tweet.getContent().contains("@" + username)) {
+                mentionedTweets.add(tweet);
+                System.out.println("Found one");
+            }
+        }
+
+        mentionedTweets.sort(Comparator.comparing(Tweet::getPosted).reversed());
+
+        return tweetMapper.entitiesToResponseDtos(mentionedTweets);
     }
 }
