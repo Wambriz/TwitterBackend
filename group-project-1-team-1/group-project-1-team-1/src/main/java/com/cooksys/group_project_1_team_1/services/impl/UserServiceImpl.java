@@ -9,6 +9,7 @@ import com.cooksys.group_project_1_team_1.mappers.TweetMapper;
 import com.cooksys.group_project_1_team_1.mappers.UserMapper;
 import com.cooksys.group_project_1_team_1.models.CredentialDto;
 import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
+import com.cooksys.group_project_1_team_1.models.UserRequestDto;
 import com.cooksys.group_project_1_team_1.models.UserResponseDto;
 import com.cooksys.group_project_1_team_1.repositories.TweetRepository;
 import com.cooksys.group_project_1_team_1.repositories.UserRepository;
@@ -29,6 +30,33 @@ public class UserServiceImpl implements UserService {
     private final CredentialsMapper credentialsMapper;
     private final TweetRepository tweetRepository;
     private final TweetMapper tweetMapper;
+
+    private void validateUserRequest(UserRequestDto userRequestDto) {
+        if (userRequestDto.getCredentials() == null) {
+            throw new BadRequestException("Must provide your credentials.");
+        }
+        if (userRequestDto.getProfile() == null) {
+            throw new BadRequestException("Must provide your profile.");
+        }
+
+        if (userRequestDto.getCredentials().getUsername() == null) {
+            throw new BadRequestException("Must provide your username.");
+        }
+        if (userRequestDto.getCredentials().getPassword() == null
+                || userRequestDto.getCredentials().getPassword().length() == 0) {
+            throw new BadRequestException("Must provide your password.");
+        }
+
+    }
+
+    private void validateCredentials(CredentialDto credentialsRequestDto) {
+        if (credentialsRequestDto.getUsername() == null) {
+            throw new BadRequestException("Must provide your username.");
+        }
+        if (credentialsRequestDto.getPassword() == null) {
+            throw new BadRequestException("Must provide your password.");
+        }
+    }
 
     @Override
     public List<TweetResponseDto> getFeedByUsername(String username) {
@@ -137,5 +165,49 @@ public class UserServiceImpl implements UserService {
         }
 
         return userMapper.entitiesToResponseDtos(follows);
+    }
+
+    @Override
+    public List<UserResponseDto> getAllUsers() {
+        return userMapper.entitiesToResponseDtos(userRepository.findAllByDeletedFalse());
+    }
+
+    @Override
+    public UserResponseDto creatUser(UserRequestDto userRequestDto) {
+        validateUserRequest(userRequestDto);
+        validateCredentials(userRequestDto.getCredentials());
+        if (userRequestDto.getProfile().getEmail() == null) {
+            throw new BadRequestException("Must provide your email to create a new user.");
+        }
+        // Check if username already exists in database and not deleted
+        User user = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if (user != null && !user.isDeleted()) {
+            throw new BadRequestException("Username is not available.");
+        }
+        // If user has previously been deleted, reactive them rather than create a new
+        // user
+        if (user != null && user.isDeleted()) {
+            user.setDeleted(false);
+            // Update the reativated user profile with the profile values in the request
+            if (userRequestDto.getProfile().getEmail() != null) {
+                user.getProfile().setEmail(userRequestDto.getProfile().getEmail());
+            }
+            if (userRequestDto.getProfile().getFirstName() != null) {
+                user.getProfile().setFirstName(userRequestDto.getProfile().getFirstName());
+            }
+            if (userRequestDto.getProfile().getLastName() != null) {
+                user.getProfile().setLastName(userRequestDto.getProfile().getLastName());
+            }
+            if (userRequestDto.getProfile().getPhone() != null) {
+                user.getProfile().setPhone(userRequestDto.getProfile().getPhone());
+            }
+
+            return userMapper.entityToResponseDto(userRepository.saveAndFlush(user));
+        }
+
+        User userToSave = userMapper.requestDtoToEntity(userRequestDto);
+        userToSave.setDeleted(false);
+
+        return userMapper.entityToResponseDto(userRepository.saveAndFlush(userToSave));
     }
 }

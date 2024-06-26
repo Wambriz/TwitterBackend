@@ -14,17 +14,17 @@ public class ValidateController {
     private final ValidateService validateService;
 
     @GetMapping("/tag/exists/{label}")
-    public boolean validateHashtagExists(@PathVariable String label){
+    public boolean validateHashtagExists(@PathVariable("label") String label){
         return validateService.validateHashtagExists(label);
     }
 
     @GetMapping("/username/exists/@{username}")
-    public boolean validateUsernameExists(@PathVariable String username) {
+    public boolean validateUsernameExists(@PathVariable("username") String username) {
         return validateService.validateUsernameExists(username);
     }
 
     @GetMapping("/username/available/@{username}")
-    public boolean validateUsernameAvailability(@PathVariable String username) {
+    public boolean validateUsernameAvailability(@PathVariable("username") String username) {
         return validateService.validateUsernameAvailability(username);
     }
 }

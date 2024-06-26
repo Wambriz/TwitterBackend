@@ -2,9 +2,11 @@ package com.cooksys.group_project_1_team_1.controllers;
 
 import com.cooksys.group_project_1_team_1.models.CredentialDto;
 import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
+import com.cooksys.group_project_1_team_1.models.UserRequestDto;
 import com.cooksys.group_project_1_team_1.models.UserResponseDto;
 import com.cooksys.group_project_1_team_1.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +17,17 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDto createUser(@RequestBody UserRequestDto userRequestDto){
+        return userService.creatUser(userRequestDto);
+    }
+
+    @GetMapping
+    public List<UserResponseDto> getAllUsers() {
+        return userService.getAllUsers();
+    }
 
     @GetMapping("/@{username}/feed")
     public List<TweetResponseDto> getUserFeed(@PathVariable("username") String username) {
