@@ -14,14 +14,12 @@ public class ValidateServiceImpl implements ValidateService {
 
     @Override
     public boolean validateHashtagExists(String label) {
-        System.out.println(label);
         return hashtagRepository.findByLabelIgnoreCase(label)!=null;
 
     }
 
     @Override
     public boolean validateUsernameExists(String username) {
-        System.out.println(username);
         return userRepository.findByCredentialsUsername(username)!=null;
     }
 

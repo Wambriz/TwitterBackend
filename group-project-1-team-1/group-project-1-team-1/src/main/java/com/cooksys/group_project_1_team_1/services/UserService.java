@@ -27,4 +27,6 @@ public interface UserService {
     List<UserResponseDto> getAllUsers();
 
     UserResponseDto creatUser(UserRequestDto userRequestDto);
+
+    void followUser(String username, CredentialDto credentialsDto);
 }

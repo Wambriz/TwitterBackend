@@ -1,8 +1,10 @@
 package com.cooksys.group_project_1_team_1.services.impl;
 
+import com.cooksys.group_project_1_team_1.entities.Credentials;
 import com.cooksys.group_project_1_team_1.entities.Tweet;
 import com.cooksys.group_project_1_team_1.entities.User;
 import com.cooksys.group_project_1_team_1.exceptions.BadRequestException;
+import com.cooksys.group_project_1_team_1.exceptions.NotAuthorizedException;
 import com.cooksys.group_project_1_team_1.exceptions.NotFoundException;
 import com.cooksys.group_project_1_team_1.mappers.CredentialsMapper;
 import com.cooksys.group_project_1_team_1.mappers.TweetMapper;
@@ -209,5 +211,31 @@ public class UserServiceImpl implements UserService {
         userToSave.setDeleted(false);
 
         return userMapper.entityToResponseDto(userRepository.saveAndFlush(userToSave));
+    }
+
+    @Override
+    public void followUser(String username, CredentialDto credentialsDto) {
+        validateCredentials(credentialsDto);
+        User userToFollow = userRepository.findByCredentialsUsername(username);
+        if (userToFollow == null || userToFollow.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+        Credentials credentials = credentialsMapper.requestDtoToEntity(credentialsDto);
+        User currentUser = userRepository.findByCredentialsUsername(credentials.getUsername());
+        if (currentUser== null || currentUser.isDeleted()) {
+            throw new NotFoundException("User not found");
+        }
+        if (!currentUser.getCredentials().getPassword().equals(credentials.getPassword())) {
+            throw new NotAuthorizedException("Password is incorrect.");
+        }
+        // Ensures there is not already a following relationship between the 2 users
+        for (User u : currentUser.getFollowing()) {
+            if (u.getCredentials().getUsername().equals(userToFollow.getCredentials().getUsername())) {
+                throw new BadRequestException("You already follow this user.");
+            }
+        }
+        userToFollow.getFollowers().add(currentUser);
+        userMapper.entityToResponseDto(userRepository.saveAndFlush(currentUser));
+        userMapper.entityToResponseDto(userRepository.saveAndFlush(userToFollow));
     }
 }

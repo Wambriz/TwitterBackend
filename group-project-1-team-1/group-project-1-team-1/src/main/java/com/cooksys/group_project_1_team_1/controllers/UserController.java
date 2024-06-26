@@ -24,6 +24,11 @@ public class UserController {
         return userService.creatUser(userRequestDto);
     }
 
+    @PostMapping("/@{username}/follow")
+    public void followUser(@PathVariable String username, @RequestBody CredentialDto credentialsDto) {
+        userService.followUser(username, credentialsDto);
+    }
+
     @GetMapping
     public List<UserResponseDto> getAllUsers() {
         return userService.getAllUsers();
@@ -49,7 +54,7 @@ public class UserController {
         return userService.getUserFollowingByUsername(username);
     }
 
-    @GetMapping("/@{username}/follows")
+    @GetMapping("/@{username}/followers")
     public List<UserResponseDto> getUserFollows(@PathVariable("username") String username) {
         return userService.getUserFollowsByUsername(username);
     }
