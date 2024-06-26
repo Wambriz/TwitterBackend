@@ -225,7 +225,7 @@ public class UserServiceImpl implements UserService {
         if (!currentUser.getCredentials().getPassword().equals(credentials.getPassword())) {
             throw new NotAuthorizedException("Password is incorrect.");
         }
-        
+
         for (User u : currentUser.getFollowing()) {
             if (u.getCredentials().getUsername().equals(userToFollow.getCredentials().getUsername())) {
                 throw new BadRequestException("You already follow this user.");
