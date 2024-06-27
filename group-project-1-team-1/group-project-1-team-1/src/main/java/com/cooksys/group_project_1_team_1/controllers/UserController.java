@@ -1,9 +1,6 @@
 package com.cooksys.group_project_1_team_1.controllers;
 
-import com.cooksys.group_project_1_team_1.models.CredentialDto;
-import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
-import com.cooksys.group_project_1_team_1.models.UserRequestDto;
-import com.cooksys.group_project_1_team_1.models.UserResponseDto;
+import com.cooksys.group_project_1_team_1.models.*;
 import com.cooksys.group_project_1_team_1.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +24,11 @@ public class UserController {
     @PostMapping("/@{username}/follow")
     public void followUser(@PathVariable String username, @RequestBody CredentialDto credentialsDto) {
         userService.followUser(username, credentialsDto);
+    }
+
+    @PatchMapping("/@{username}")
+    public UserResponseDto updateProfileUsername(@PathVariable String username, @RequestBody UserRequestDto userRequestDto) {
+        return userService.updateProfileUsername(username, userRequestDto);
     }
 
     @GetMapping

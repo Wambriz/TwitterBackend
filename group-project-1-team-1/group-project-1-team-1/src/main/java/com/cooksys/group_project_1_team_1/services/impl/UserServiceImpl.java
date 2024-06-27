@@ -7,6 +7,7 @@ import com.cooksys.group_project_1_team_1.exceptions.BadRequestException;
 import com.cooksys.group_project_1_team_1.exceptions.NotAuthorizedException;
 import com.cooksys.group_project_1_team_1.exceptions.NotFoundException;
 import com.cooksys.group_project_1_team_1.mappers.CredentialsMapper;
+import com.cooksys.group_project_1_team_1.mappers.ProfileMapper;
 import com.cooksys.group_project_1_team_1.mappers.TweetMapper;
 import com.cooksys.group_project_1_team_1.mappers.UserMapper;
 import com.cooksys.group_project_1_team_1.models.CredentialDto;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final ProfileMapper profileMapper;
     private final CredentialsMapper credentialsMapper;
     private final TweetRepository tweetRepository;
     private final TweetMapper tweetMapper;
@@ -60,27 +62,43 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public List<TweetResponseDto> getFeedByUsername(String username) {
+    private User validateUserExistsAndNotDeleted(String username) {
         User user = userRepository.findByCredentialsUsername(username);
         if (user == null || user.isDeleted()) {
             throw new NotFoundException("User not found");
         }
+        return user;
+    }
 
-        List<Tweet> tweets = tweetRepository.findAllByAuthorIdAndDeletedFalse(user.getId());
-        return tweetMapper.entitiesToResponseDtos(tweets);
+    private void updateUserProfile(User user, UserRequestDto userRequestDto) {
+        if (userRequestDto.getProfile().getEmail() != null) {
+            user.getProfile().setEmail(userRequestDto.getProfile().getEmail());
+        }
+        if (userRequestDto.getProfile().getPhone() != null) {
+            user.getProfile().setPhone(userRequestDto.getProfile().getPhone());
+        }
+        if (userRequestDto.getProfile().getFirstName() != null) {
+            user.getProfile().setFirstName(userRequestDto.getProfile().getFirstName());
+        }
+        if (userRequestDto.getProfile().getLastName() != null) {
+            user.getProfile().setLastName(userRequestDto.getProfile().getLastName());
+        }
+    }
+
+    @Override
+    public List<TweetResponseDto> getFeedByUsername(String username) {
+        return tweetMapper.entitiesToResponseDtos(
+                tweetRepository.findAllByAuthorIdAndDeletedFalse(
+                        validateUserExistsAndNotDeleted(username).getId())
+        );
     }
 
     @Override
     public UserResponseDto deleteUserByUsername(String username, CredentialDto credentials) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+        User user = validateUserExistsAndNotDeleted(username);
         if (!user.getCredentials().equals(credentialsMapper.requestDtoToEntity(credentials))) {
             throw new BadRequestException("Credentials for user you are trying to delete do not match.");
         }
-
         user.setDeleted(true);
         for (Tweet tweet : user.getTweets()) {
             tweet.setDeleted(true);
@@ -93,20 +111,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserByUsername(String username) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
-
-        return userMapper.entityToResponseDto(user);
+        return userMapper.entityToResponseDto(validateUserExistsAndNotDeleted(username));
     }
 
     @Override
     public List<TweetResponseDto> getTweetsByUsername(String username) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+        User user = validateUserExistsAndNotDeleted(username);
         user.getTweets().sort(Comparator.comparing(Tweet::getPosted).reversed());
 
         return tweetMapper.entitiesToResponseDtos(user.getTweets());
@@ -114,20 +124,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<TweetResponseDto> getUserMentionsByUsername(String username) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+        validateUserExistsAndNotDeleted(username);
 
         List<Tweet> mentionedTweets = new ArrayList<>();
 
         for (Tweet tweet : tweetRepository.findAll()) {
             if (tweet.getContent() != null && tweet.getContent().contains("@" + username)) {
                 mentionedTweets.add(tweet);
-                System.out.println("Found one");
             }
         }
-
         mentionedTweets.sort(Comparator.comparing(Tweet::getPosted).reversed());
 
         return tweetMapper.entitiesToResponseDtos(mentionedTweets);
@@ -135,10 +140,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> getUserFollowingByUsername(String username) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+        User user = validateUserExistsAndNotDeleted(username);
 
         List<User> following = new ArrayList<>();
 
@@ -153,10 +155,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> getUserFollowsByUsername(String username) {
-        User user = userRepository.findByCredentialsUsername(username);
-        if (user == null || user.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+        User user = validateUserExistsAndNotDeleted(username);
 
         List<User> follows = new ArrayList<>();
 
@@ -234,5 +233,15 @@ public class UserServiceImpl implements UserService {
         userToFollow.getFollowers().add(currentUser);
         userMapper.entityToResponseDto(userRepository.saveAndFlush(currentUser));
         userMapper.entityToResponseDto(userRepository.saveAndFlush(userToFollow));
+    }
+
+    @Override
+    public UserResponseDto updateProfileUsername(String username, UserRequestDto userRequestDto) {
+        validateUserRequest(userRequestDto);
+        User user = validateUserExistsAndNotDeleted(userRequestDto.getCredentials().getUsername());
+        updateUserProfile(user,userRequestDto);
+        userRepository.saveAndFlush(user);
+
+        return userMapper.entityToResponseDto(user);
     }
 }
