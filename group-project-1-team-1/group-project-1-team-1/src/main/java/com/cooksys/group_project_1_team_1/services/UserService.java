@@ -31,4 +31,6 @@ public interface UserService {
     void followUser(String username, CredentialDto credentialsDto);
 
     UserResponseDto updateProfileUsername(String username, UserRequestDto userRequestDto);
+
+    void unFollowUser(String username, CredentialDto credentials);
 }
