@@ -68,4 +68,10 @@ public class TweetController {
         List<TweetResponseDto> replies = tweetService.getTweetReplies(id);
         return ResponseEntity.ok(replies);
     }
+
+    @PostMapping("/{id}/reply")
+    public ResponseEntity<TweetResponseDto> replyToTweet(@PathVariable Long id, @RequestBody TweetRequestDto tweetRequestDto) {
+        TweetResponseDto responseDto = tweetService.replyToTweet(id, tweetRequestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
 }

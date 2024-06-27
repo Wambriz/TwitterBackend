@@ -266,6 +266,34 @@ public class TweetServiceImpl implements TweetService {
         return tweetMapper.entityToResponseDto(repostTweet);
     }
 
+    @Override
+    public TweetResponseDto replyToTweet(Long id, TweetRequestDto tweetRequestDto) {
+        // validation
+        Credentials credentials = credentialsMapper.requestDtoToEntity(tweetRequestDto.getCredentials());
+        User user = verifyCredentials(credentials);
+        // validation
+        String content = tweetRequestDto.getContent();
+        if (content == null || content.isEmpty()) {
+            throw new BadRequestException("Content cannot be empty!");
+        }
+        Tweet originalTweet = getTweetFromDb(id);
+
+        Tweet replyTweet = new Tweet();
+        replyTweet.setDeleted(false);
+        replyTweet.setAuthor(user);
+        replyTweet.setContent(content);
+        replyTweet.setPosted(new Timestamp(System.currentTimeMillis()));
+        replyTweet.setInReplyTo(originalTweet);
+
+        replyTweet.setHashtags(getHashtagsFromString(content, replyTweet));
+        replyTweet.setMentions(getMentionsFromString(content, replyTweet));
+
+        // save reply tweet
+        originalTweet.getReplies().add(replyTweet);
+        tweetRepository.saveAndFlush(originalTweet);
+        return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(replyTweet));
+    }
+
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
         List<Tweet> beforeTweets = new ArrayList<>();
         Tweet current = tweet.getInReplyTo();
