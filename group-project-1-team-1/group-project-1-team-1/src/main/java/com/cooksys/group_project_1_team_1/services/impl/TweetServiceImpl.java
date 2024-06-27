@@ -85,7 +85,7 @@ public class TweetServiceImpl implements TweetService {
         return hashtags;
     }
 
-    
+
     private List<User> getMentionsFromString(String string, Tweet tweet) {
         Pattern pattern = Pattern.compile("@(\\w+)");
         Matcher matcher = pattern.matcher(string);
