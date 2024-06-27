@@ -255,23 +255,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void unFollowUser(String username, CredentialDto credentialsDto) {
         validateCredentials(credentialsDto);
-        User User = validateUserExistsAndNotDeleted(username);
+        User userToUnFollow = validateUserExistsAndNotDeleted(username);
         Credentials credentials = credentialsMapper.requestDtoToEntity(credentialsDto);
-        User userToUnFollow = validateUserExistsAndNotDeleted(credentials.getUsername());
-
-        boolean isFollowing = false;
-        for (User u : User.getFollowing()) {
-            if (u.getCredentials().getUsername().equals(userToUnFollow.getCredentials().getUsername())) {
-                isFollowing = true;
-            }
+        User currentUser = validateUserExistsAndNotDeleted(credentials.getUsername());
+        if (!currentUser.getCredentials().getPassword().equals(credentials.getPassword())){
+            throw new NotAuthorizedException("Password is incorrect");
         }
-        if (!isFollowing) {
-            throw new BadRequestException("You do not follow this user.");
+        if (!userToUnFollow.getFollowers().contains(currentUser)){
+            throw new BadRequestException("You do not follow this user");
         }
-
-        User.getFollowing().remove(userToUnFollow);
-        userToUnFollow.getFollowers().remove(User);
-        userRepository.saveAndFlush(User);
-        userRepository.saveAndFlush(userToUnFollow);
+        userToUnFollow.getFollowers().remove(currentUser);
+        userMapper.entityToResponseDto(userRepository.saveAndFlush(userToUnFollow));
+        userMapper.entityToResponseDto(userRepository.saveAndFlush(currentUser));
     }
 }
