@@ -1,9 +1,6 @@
 package com.cooksys.group_project_1_team_1.controllers;
 
-import com.cooksys.group_project_1_team_1.models.HashtagDto;
-import com.cooksys.group_project_1_team_1.models.TweetRequestDto;
-import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
-import com.cooksys.group_project_1_team_1.models.UserResponseDto;
+import com.cooksys.group_project_1_team_1.models.*;
 import com.cooksys.group_project_1_team_1.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,6 +44,11 @@ public class TweetController {
     @GetMapping("/{id}/reposts")
     public List<TweetResponseDto> getTweetReposts(@PathVariable("id") Long id) {
         return tweetService.getTweetReposts(id);
+    }
+
+    @GetMapping("/{id}/context")
+    public ContextDto getTweetContext(@PathVariable("id") Long id) {
+        return tweetService.getTweetContext(id);
     }
 
 

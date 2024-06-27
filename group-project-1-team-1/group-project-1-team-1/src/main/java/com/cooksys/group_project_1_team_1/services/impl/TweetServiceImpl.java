@@ -11,10 +11,7 @@ import com.cooksys.group_project_1_team_1.mappers.CredentialsMapper;
 import com.cooksys.group_project_1_team_1.mappers.HashtagMapper;
 import com.cooksys.group_project_1_team_1.mappers.TweetMapper;
 import com.cooksys.group_project_1_team_1.mappers.UserMapper;
-import com.cooksys.group_project_1_team_1.models.HashtagDto;
-import com.cooksys.group_project_1_team_1.models.TweetRequestDto;
-import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
-import com.cooksys.group_project_1_team_1.models.UserResponseDto;
+import com.cooksys.group_project_1_team_1.models.*;
 import com.cooksys.group_project_1_team_1.repositories.HashtagRepository;
 import com.cooksys.group_project_1_team_1.repositories.TweetRepository;
 import com.cooksys.group_project_1_team_1.repositories.UserRepository;
@@ -23,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -197,5 +191,48 @@ public class TweetServiceImpl implements TweetService {
 
         // Convert list to Tweet entities
         return tweetMapper.entitiesToResponseDtos(reposts);
+    }
+
+    @Override
+    public ContextDto getTweetContext(Long id) {
+        Optional<Tweet> tweetOptional = tweetRepository.findByIdAndDeletedFalse(id);
+        if (tweetOptional.isEmpty()) {
+            throw new NotFoundException("No tweet exists with provided ID!");
+        }
+        Tweet tweet = tweetOptional.get();
+        // Before context
+        List<TweetResponseDto> before = getBeforeContext(tweet);
+        // After context
+        List<TweetResponseDto> after = getAfterContext(tweet);
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setTarget(tweetMapper.entityToResponseDto(tweet));
+        contextDto.setBefore(before);
+        contextDto.setAfter(after);
+        return contextDto;
+    }
+
+    private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
+        List<Tweet> beforeTweets = new ArrayList<>();
+        Tweet current = tweet.getInReplyTo();
+        while (current != null && !current.isDeleted()) {
+            beforeTweets.add(current);
+            current = current.getInReplyTo();
+        }
+        Collections.reverse(beforeTweets);
+        return tweetMapper.entitiesToResponseDtos(beforeTweets);
+    }
+
+    private List<TweetResponseDto> getAfterContext(Tweet tweet) {
+        List<Tweet> afterTweets = new ArrayList<>();
+        Queue<Tweet> queue = new LinkedList<>(tweet.getReplies());
+        while (!queue.isEmpty()) {
+            Tweet current = queue.poll();
+            if (current != null && !current.isDeleted()) {
+                afterTweets.add(current);
+                queue.addAll(current.getReplies());
+            }
+        }
+        return tweetMapper.entitiesToResponseDtos(afterTweets);
     }
 }

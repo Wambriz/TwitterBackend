@@ -1,10 +1,7 @@
 package com.cooksys.group_project_1_team_1.services;
 
 import com.cooksys.group_project_1_team_1.entities.Tweet;
-import com.cooksys.group_project_1_team_1.models.HashtagDto;
-import com.cooksys.group_project_1_team_1.models.TweetRequestDto;
-import com.cooksys.group_project_1_team_1.models.TweetResponseDto;
-import com.cooksys.group_project_1_team_1.models.UserResponseDto;
+import com.cooksys.group_project_1_team_1.models.*;
 
 import java.util.List;
 
@@ -22,4 +19,6 @@ public interface TweetService {
     TweetResponseDto createTweet(TweetRequestDto tweetRequestDto);
 
     List<TweetResponseDto> getTweetReposts(Long id);
+
+    ContextDto getTweetContext(Long id);
 }
