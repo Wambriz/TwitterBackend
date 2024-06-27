@@ -57,4 +57,10 @@ public class TweetController {
         List<UserResponseDto> mentions = (List<UserResponseDto>) tweetService.getTweetMentions(id);
         return ResponseEntity.ok(mentions);
     }
+
+    @GetMapping("/{id}/replies")
+    public ResponseEntity<List<TweetResponseDto>> getTweetReplies(@PathVariable Long id) {
+        List<TweetResponseDto> replies = tweetService.getTweetReplies(id);
+        return ResponseEntity.ok(replies);
+    }
 }

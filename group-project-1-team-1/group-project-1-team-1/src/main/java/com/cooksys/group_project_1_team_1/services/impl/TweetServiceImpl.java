@@ -228,6 +228,21 @@ public class TweetServiceImpl implements TweetService {
         return userMapper.entitiesToResponseDtos(mentionedUsers);
     }
 
+    @Override
+    public List<TweetResponseDto> getTweetReplies(Long id) {
+        Optional<Tweet> tweetOptional = tweetRepository.findByIdAndDeletedFalse(id);
+        if (tweetOptional.isEmpty()) {
+            throw new NotFoundException("No tweet exists with provided ID!");
+        }
+        Tweet tweet = tweetOptional.get();
+
+        List<Tweet> replies = tweet.getReplies().stream()
+                .filter(reply -> !reply.isDeleted())
+                .collect(Collectors.toList());
+
+        return tweetMapper.entitiesToResponseDtos(replies);
+    }
+
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
         List<Tweet> beforeTweets = new ArrayList<>();
         Tweet current = tweet.getInReplyTo();
