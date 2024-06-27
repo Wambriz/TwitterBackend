@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<TweetResponseDto> getFeedByUsername(String username) {
+
         return tweetMapper.entitiesToResponseDtos(
                 tweetRepository.findAllByAuthorIdAndDeletedFalse(
                         validateUserExistsAndNotDeleted(username).getId())
@@ -261,7 +262,7 @@ public class UserServiceImpl implements UserService {
         if (!isFollowing) {
             throw new BadRequestException("You do not follow this user.");
         }
-        
+
         User.getFollowing().remove(userToUnFollow);
         userToUnFollow.getFollowers().remove(User);
         userRepository.saveAndFlush(User);

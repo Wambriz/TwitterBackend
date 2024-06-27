@@ -19,6 +19,7 @@ import com.cooksys.group_project_1_team_1.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -241,6 +242,31 @@ public class TweetServiceImpl implements TweetService {
                 .collect(Collectors.toList());
 
         return tweetMapper.entitiesToResponseDtos(replies);
+    }
+
+    @Override
+    public TweetResponseDto repostTweet(Long id, CredentialDto credentialDto) {
+        Optional<Tweet> tweet = tweetRepository.findByIdAndDeletedFalse(id);
+        if (tweet.isEmpty()) {
+            throw new NotFoundException("Tweet does not exist or has been deleted.");
+        }
+        verifyCredentials(credentialsMapper.requestDtoToEntity(credentialDto));
+
+        Tweet repostTweet = new Tweet();
+        repostTweet.setDeleted(false);
+        repostTweet.setRepostOf(tweet.get());
+        repostTweet.setContent(tweet.get().getContent());
+        repostTweet.setAuthor(userRepository.findByCredentialsUsername(credentialDto.getUsername()));
+        repostTweet.setHashtags(tweet.get().getHashtags());
+        repostTweet.setPosted(new Timestamp(System.currentTimeMillis()));
+        repostTweet.setMentions(tweet.get().getMentions());
+
+        tweet.get().getReposts().add(repostTweet);
+        
+        tweetRepository.saveAndFlush(repostTweet);
+        tweetRepository.saveAndFlush(tweet.get());
+
+        return tweetMapper.entityToResponseDto(repostTweet);
     }
 
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {

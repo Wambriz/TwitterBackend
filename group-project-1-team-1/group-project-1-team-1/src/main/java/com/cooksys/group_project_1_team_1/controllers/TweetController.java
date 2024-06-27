@@ -22,6 +22,11 @@ public class TweetController {
         return tweetService.createTweet(tweetRequestDto);
     }
 
+    @PostMapping("/{id}/repost")
+    public TweetResponseDto repostTweet(@PathVariable Long id, @RequestBody CredentialDto credentialDto) {
+        return tweetService.repostTweet(id, credentialDto);
+    }
+
     @GetMapping
     public List<TweetResponseDto> getAllTweets() {
         return tweetService.getAllTweets();

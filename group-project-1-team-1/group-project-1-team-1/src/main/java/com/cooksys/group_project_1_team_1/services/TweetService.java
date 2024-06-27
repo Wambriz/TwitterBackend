@@ -25,4 +25,6 @@ public interface TweetService {
     Object getTweetMentions(Long id);
 
     List<TweetResponseDto> getTweetReplies(Long id);
+
+    TweetResponseDto repostTweet(Long id, CredentialDto credentialDto);
 }
