@@ -255,14 +255,11 @@ public class TweetServiceImpl implements TweetService {
         Tweet repostTweet = new Tweet();
         repostTweet.setDeleted(false);
         repostTweet.setRepostOf(tweet.get());
-        repostTweet.setContent(tweet.get().getContent());
         repostTweet.setAuthor(userRepository.findByCredentialsUsername(credentialDto.getUsername()));
-        repostTweet.setHashtags(tweet.get().getHashtags());
         repostTweet.setPosted(new Timestamp(System.currentTimeMillis()));
-        repostTweet.setMentions(tweet.get().getMentions());
 
         tweet.get().getReposts().add(repostTweet);
-        
+
         tweetRepository.saveAndFlush(repostTweet);
         tweetRepository.saveAndFlush(tweet.get());
 
