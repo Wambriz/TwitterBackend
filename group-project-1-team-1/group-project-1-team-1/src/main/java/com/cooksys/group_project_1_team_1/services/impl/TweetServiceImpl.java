@@ -212,6 +212,22 @@ public class TweetServiceImpl implements TweetService {
         return contextDto;
     }
 
+    @Override
+    public Object getTweetMentions(Long id) {
+        Optional<Tweet> tweetOptional = tweetRepository.findByIdAndDeletedFalse(id);
+        if (tweetOptional.isEmpty()) {
+            throw new NotFoundException("No tweet exists with provided ID!");
+        }
+        Tweet tweet = tweetOptional.get();
+
+        // Filter out user that are not deleted
+        List<User> mentionedUsers = tweet.getMentions().stream()
+                .filter(user -> !user.isDeleted())
+                .collect(Collectors.toList());
+
+        return userMapper.entitiesToResponseDtos(mentionedUsers);
+    }
+
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
         List<Tweet> beforeTweets = new ArrayList<>();
         Tweet current = tweet.getInReplyTo();

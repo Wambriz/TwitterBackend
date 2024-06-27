@@ -21,4 +21,6 @@ public interface TweetService {
     List<TweetResponseDto> getTweetReposts(Long id);
 
     ContextDto getTweetContext(Long id);
+
+    Object getTweetMentions(Long id);
 }
