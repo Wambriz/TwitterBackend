@@ -87,11 +87,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<TweetResponseDto> getFeedByUsername(String username) {
+        User user = validateUserExistsAndNotDeleted(username);
+        List<Tweet> userFeed = new ArrayList<>();
 
-        return tweetMapper.entitiesToResponseDtos(
-                tweetRepository.findAllByAuthorIdAndDeletedFalse(
-                        validateUserExistsAndNotDeleted(username).getId())
-        );
+        userFeed.addAll(tweetRepository.findAllByAuthorIdAndDeletedFalse(user.getId()));
+        for (User u : user.getFollowing()) {
+            userFeed.addAll(tweetRepository.findAllByAuthorIdAndDeletedFalse(u.getId()));
+        }
+
+        userFeed.sort(Comparator.comparing(Tweet::getPosted).reversed());
+
+        return tweetMapper.entitiesToResponseDtos(userFeed);
     }
 
     @Override
