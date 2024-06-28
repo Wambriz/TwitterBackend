@@ -7,7 +7,6 @@ import com.cooksys.group_project_1_team_1.exceptions.BadRequestException;
 import com.cooksys.group_project_1_team_1.exceptions.NotAuthorizedException;
 import com.cooksys.group_project_1_team_1.exceptions.NotFoundException;
 import com.cooksys.group_project_1_team_1.mappers.CredentialsMapper;
-import com.cooksys.group_project_1_team_1.mappers.ProfileMapper;
 import com.cooksys.group_project_1_team_1.mappers.TweetMapper;
 import com.cooksys.group_project_1_team_1.mappers.UserMapper;
 import com.cooksys.group_project_1_team_1.models.CredentialDto;
@@ -30,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final ProfileMapper profileMapper;
     private final CredentialsMapper credentialsMapper;
     private final TweetRepository tweetRepository;
     private final TweetMapper tweetMapper;
