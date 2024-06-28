@@ -31,4 +31,6 @@ public interface TweetService {
     TweetResponseDto replyToTweet(Long id, TweetRequestDto tweetRequestDto);
 
     TweetResponseDto deleteTweet(Long id, CredentialDto credentialDto);
+
+    void likeTweet(Long id, CredentialDto credentialDto);
 }

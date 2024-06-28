@@ -46,4 +46,12 @@ public class User {
     @OneToMany(mappedBy = "author")
     private List<Tweet> tweets;
 
+    public void addLikedTweet(Tweet tweet) {
+        if (!this.tweetLikes.contains(tweet)) {
+            this.tweetLikes.add(tweet);
+            tweet.getLikes().add(this);
+        }
+    }
+
+
 }

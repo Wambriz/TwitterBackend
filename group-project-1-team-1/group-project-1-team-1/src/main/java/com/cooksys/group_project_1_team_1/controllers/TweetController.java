@@ -80,4 +80,10 @@ public class TweetController {
         TweetResponseDto deletedTweet = tweetService.deleteTweet(id, credentialDto);
         return ResponseEntity.ok(deletedTweet);
     }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Void> likeTweet(@PathVariable Long id, @RequestBody CredentialDto credentialDto) {
+        tweetService.likeTweet(id, credentialDto);
+        return ResponseEntity.ok().build();
+    }
 }

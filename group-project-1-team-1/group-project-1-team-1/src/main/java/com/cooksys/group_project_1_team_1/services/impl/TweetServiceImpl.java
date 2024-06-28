@@ -316,6 +316,29 @@ public class TweetServiceImpl implements TweetService {
         return tweetMapper.entityToResponseDto(tweet);
     }
 
+    @Override
+    public void likeTweet(Long tweetId, CredentialDto credentialDto) {
+        User user = verifyCredentials(credentialsMapper.requestDtoToEntity(credentialDto));
+
+        Tweet tweet = tweetRepository.findById(tweetId)
+                .orElseThrow(() -> new NotFoundException("Tweet not found"));
+
+        if (tweet.isDeleted()) {
+            throw new NotFoundException("Tweet is deleted");
+        }
+
+        if (user.getTweetLikes().contains(tweet)) {
+            throw new BadRequestException("User already liked this tweet");
+        }
+
+        user.getTweetLikes().add(tweet);
+        tweet.getLikes().add(user);
+
+        userRepository.saveAndFlush(user);
+        tweetRepository.saveAndFlush(tweet);
+    }
+
+
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
         List<Tweet> beforeTweets = new ArrayList<>();
         Tweet current = tweet.getInReplyTo();
