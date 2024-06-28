@@ -294,6 +294,28 @@ public class TweetServiceImpl implements TweetService {
         return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(replyTweet));
     }
 
+    @Override
+    public TweetResponseDto deleteTweet(Long id, CredentialDto credentialDto) {
+        Credentials credentials = credentialsMapper.requestDtoToEntity(credentialDto);
+        User user = verifyCredentials(credentials);
+
+        Tweet tweet = tweetRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tweet not found"));
+
+        if (tweet.isDeleted()) {
+            throw new NotFoundException("Tweet is already deleted");
+        }
+
+        if (!tweet.getAuthor().equals(user)) {
+            throw new NotAuthorizedException("User is not the author of the tweet");
+        }
+
+        tweet.setDeleted(true);
+        tweetRepository.saveAndFlush(tweet);
+
+        return tweetMapper.entityToResponseDto(tweet);
+    }
+
     private List<TweetResponseDto> getBeforeContext(Tweet tweet) {
         List<Tweet> beforeTweets = new ArrayList<>();
         Tweet current = tweet.getInReplyTo();

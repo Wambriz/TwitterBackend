@@ -74,4 +74,10 @@ public class TweetController {
         TweetResponseDto responseDto = tweetService.replyToTweet(id, tweetRequestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
+
+    @PostMapping("/{id}/delete")
+    public ResponseEntity<TweetResponseDto> deleteTweet(@PathVariable Long id, @RequestBody CredentialDto credentialDto) {
+        TweetResponseDto deletedTweet = tweetService.deleteTweet(id, credentialDto);
+        return ResponseEntity.ok(deletedTweet);
+    }
 }
