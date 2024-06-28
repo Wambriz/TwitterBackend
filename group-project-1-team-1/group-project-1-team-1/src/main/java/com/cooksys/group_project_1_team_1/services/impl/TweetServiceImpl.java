@@ -327,12 +327,12 @@ public class TweetServiceImpl implements TweetService {
             throw new NotFoundException("Tweet is deleted");
         }
 
-        if (user.getTweetLikes().contains(tweet)) {
-            throw new BadRequestException("User already liked this tweet");
+        if (!user.getTweetLikes().contains(tweet)) {
+            user.getTweetLikes().add(tweet);
+            tweet.getLikes().add(user);
         }
 
-        user.getTweetLikes().add(tweet);
-        tweet.getLikes().add(user);
+
 
         userRepository.saveAndFlush(user);
         tweetRepository.saveAndFlush(tweet);
